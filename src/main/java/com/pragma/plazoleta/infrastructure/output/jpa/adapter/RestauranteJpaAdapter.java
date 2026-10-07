@@ -33,4 +33,9 @@ public class RestauranteJpaAdapter implements IRestaurantePersistencePort {
     public boolean existePorNit(String nit) {
         return repository.existsByNit(nit);
     }
+
+    @Override
+    public boolean existePorId(Long id) {
+        return repository.existsById(id);
+    }
 }

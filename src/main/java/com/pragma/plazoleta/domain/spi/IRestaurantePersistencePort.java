@@ -15,4 +15,6 @@ public interface IRestaurantePersistencePort {
     Restaurante guardar(Restaurante restaurante);
 
     boolean existePorNit(String nit);
+    
+    boolean existePorId(Long id);
 }
