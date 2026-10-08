@@ -38,6 +38,22 @@ public class PlatoUseCase implements IPlatoServicePort {
         return platoPersistencePort.guardar(plato);
     }
 
+    @Override
+    public Plato modificarPlato(Long id, Long precio, String descripcion) {
+        validarPrecio(precio);
+        if (vacio(descripcion)) {
+            throw new DomainException("La descripción es obligatoria");
+        }
+
+        Plato plato = platoPersistencePort.buscarPorId(id)
+                .orElseThrow(() -> new DomainException("No existe un plato con ese id"));
+
+        plato.setPrecio(precio);
+        plato.setDescripcion(descripcion);
+
+        return platoPersistencePort.guardar(plato);
+    }
+
     private void validarCampos(Plato p) {
         if (vacio(p.getNombre()) || vacio(p.getDescripcion())
                 || vacio(p.getUrlImagen()) || p.getCategoria() == null
@@ -50,6 +66,9 @@ public class PlatoUseCase implements IPlatoServicePort {
     }
 
     private void validarPrecio(Long precio) {
+        if (precio == null) {
+            throw new DomainException("El precio es obligatorio");
+        }
         if (precio < PRECIO_MINIMO) {
             throw new DomainException("El precio debe ser un número entero positivo mayor a 0");
         }

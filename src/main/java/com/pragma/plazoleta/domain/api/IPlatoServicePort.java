@@ -13,4 +13,6 @@ import com.pragma.plazoleta.domain.model.Plato;
 public interface IPlatoServicePort {
 
     Plato crearPlato(Plato plato);
+    
+    Plato modificarPlato(Long id, Long precio, String descripcion);
 }

@@ -18,6 +18,7 @@ import com.pragma.plazoleta.domain.model.CategoriaPlato;
 import com.pragma.plazoleta.domain.model.Plato;
 import com.pragma.plazoleta.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -150,5 +151,61 @@ class PlatoUseCaseTest {
 
         // ...debe quedar en true
         assertTrue(creado.getActivo());
+    }
+    
+        @Test
+    void modificaPrecioYDescripcionCorrectamente() {
+        Plato existente = valido();
+        existente.setId(1L);
+        when(platoPersistencePort.buscarPorId(1L)).thenReturn(Optional.of(existente));
+        when(platoPersistencePort.guardar(any())).thenAnswer(i -> i.getArgument(0));
+
+        Plato modificado = useCase.modificarPlato(1L, 50000L, "Nueva descripción");
+
+        assertEquals(50000L, modificado.getPrecio());
+        assertEquals("Nueva descripción", modificado.getDescripcion());
+        assertEquals("Bandeja Paisa", modificado.getNombre()); // No cambia
+        assertEquals(CategoriaPlato.PLATO_FUERTE, modificado.getCategoria()); // No cambia
+    }
+
+    @Test
+    void rechazaModificarPlatoInexistente() {
+        when(platoPersistencePort.buscarPorId(999L)).thenReturn(Optional.empty());
+
+        DomainException ex = assertThrows(DomainException.class,
+                () -> useCase.modificarPlato(999L, 50000L, "Nueva descripción"));
+
+        assertEquals("No existe un plato con ese id", ex.getMessage());
+        verify(platoPersistencePort, never()).guardar(any());
+    }
+
+    @Test
+    void rechazaModificarConPrecioCero() {
+        assertThrows(DomainException.class,
+                () -> useCase.modificarPlato(1L, 0L, "Nueva descripción"));
+    }
+
+    @Test
+    void rechazaModificarConPrecioNegativo() {
+        assertThrows(DomainException.class,
+                () -> useCase.modificarPlato(1L, -5000L, "Nueva descripción"));
+    }
+
+    @Test
+    void rechazaModificarConPrecioNulo() {
+        assertThrows(DomainException.class,
+                () -> useCase.modificarPlato(1L, null, "Nueva descripción"));
+    }
+
+    @Test
+    void rechazaModificarConDescripcionVacia() {
+        assertThrows(DomainException.class,
+                () -> useCase.modificarPlato(1L, 50000L, ""));
+    }
+
+    @Test
+    void rechazaModificarConDescripcionNula() {
+        assertThrows(DomainException.class,
+                () -> useCase.modificarPlato(1L, 50000L, null));
     }
 }

@@ -7,13 +7,17 @@ package com.pragma.plazoleta.infrastructure.input.rest;
 import com.pragma.plazoleta.domain.api.IPlatoServicePort;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoResponseDto;
+import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoUpdateRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.mapper.PlatoRequestMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 /**
  *
  * @author Juan Camilo
@@ -35,4 +39,12 @@ public class PlatoController {
         var creado = servicePort.crearPlato(mapper.toModel(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(creado));
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<PlatoResponseDto> modificarPlato(
+            @PathVariable Long id,
+            @RequestBody PlatoUpdateRequestDto request) {
+        var modificado = servicePort.modificarPlato(id, request.precio(), request.descripcion());
+        return ResponseEntity.ok(mapper.toResponse(modificado));
+    }
+    
 }
