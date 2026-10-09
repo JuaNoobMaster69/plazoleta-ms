@@ -10,6 +10,7 @@ import com.pragma.plazoleta.infrastructure.output.jpa.mapper.PlatoEntityMapper;
 import com.pragma.plazoleta.infrastructure.output.jpa.repository.IPlatoRepository;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
+
 /**
  *
  * @author Juan Camilo

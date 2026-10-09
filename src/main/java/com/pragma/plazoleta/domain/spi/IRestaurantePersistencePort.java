@@ -5,6 +5,7 @@
 package com.pragma.plazoleta.domain.spi;
 
 import com.pragma.plazoleta.domain.model.Restaurante;
+import java.util.Optional;
 
 /**
  *
@@ -15,6 +16,8 @@ public interface IRestaurantePersistencePort {
     Restaurante guardar(Restaurante restaurante);
 
     boolean existePorNit(String nit);
-    
+
     boolean existePorId(Long id);
+
+    Optional<Restaurante> buscarPorId(Long id);
 }

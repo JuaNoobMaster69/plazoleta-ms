@@ -8,12 +8,15 @@ import com.pragma.plazoleta.domain.api.IRestauranteServicePort;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.RestauranteRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.RestauranteResponseDto;
 import com.pragma.plazoleta.infrastructure.input.rest.mapper.RestauranteRequestMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 /**
  *
  * @author Juan Camilo
@@ -30,6 +33,8 @@ public class RestauranteRestController {
         this.mapper = mapper;
     }
 
+    @Operation(summary = "Crear un restaurante (solo el administrador)")
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping
     public ResponseEntity<RestauranteResponseDto> crearRestaurante(@RequestBody RestauranteRequestDto request) {
         var creado = servicePort.crearRestaurante(mapper.toModel(request));

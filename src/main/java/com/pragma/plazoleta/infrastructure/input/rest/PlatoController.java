@@ -9,6 +9,8 @@ import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoResponseDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoUpdateRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.mapper.PlatoRequestMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,11 +36,16 @@ public class PlatoController {
         this.mapper = mapper;
     }
 
+    @Operation(summary = "Crear un plato (solo el propietario del restaurante)")
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping
     public ResponseEntity<PlatoResponseDto> crearPlato(@RequestBody PlatoRequestDto request) {
         var creado = servicePort.crearPlato(mapper.toModel(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(creado));
     }
+
+    @Operation(summary = "Modificar un plato (solo el propietario del restaurante)")
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}")
     public ResponseEntity<PlatoResponseDto> modificarPlato(
             @PathVariable Long id,
@@ -46,5 +53,4 @@ public class PlatoController {
         var modificado = servicePort.modificarPlato(id, request.precio(), request.descripcion());
         return ResponseEntity.ok(mapper.toResponse(modificado));
     }
-    
 }

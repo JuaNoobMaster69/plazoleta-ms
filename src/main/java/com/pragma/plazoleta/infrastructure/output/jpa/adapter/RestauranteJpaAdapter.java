@@ -8,7 +8,9 @@ import com.pragma.plazoleta.domain.model.Restaurante;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
 import com.pragma.plazoleta.infrastructure.output.jpa.mapper.RestauranteEntityMapper;
 import com.pragma.plazoleta.infrastructure.output.jpa.repository.IRestauranteRepository;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
+
 /**
  *
  * @author Juan Camilo
@@ -37,5 +39,10 @@ public class RestauranteJpaAdapter implements IRestaurantePersistencePort {
     @Override
     public boolean existePorId(Long id) {
         return repository.existsById(id);
+    }
+
+    @Override
+    public Optional<Restaurante> buscarPorId(Long id) {
+        return repository.findById(id).map(mapper::toModel);
     }
 }

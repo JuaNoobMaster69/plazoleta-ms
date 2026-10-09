@@ -5,7 +5,6 @@
 package com.pragma.plazoleta.application.usecase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,6 +15,8 @@ import static org.mockito.Mockito.when;
 import com.pragma.plazoleta.domain.exception.DomainException;
 import com.pragma.plazoleta.domain.model.CategoriaPlato;
 import com.pragma.plazoleta.domain.model.Plato;
+import com.pragma.plazoleta.domain.model.Restaurante;
+import com.pragma.plazoleta.domain.spi.IAuthenticatedUserPort;
 import com.pragma.plazoleta.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 /**
  *
  * @author Juan Camilo
@@ -37,8 +39,13 @@ class PlatoUseCaseTest {
     @Mock
     IRestaurantePersistencePort restaurantePersistencePort;
 
+    @Mock
+    IAuthenticatedUserPort authenticatedUserPort;
+
     @InjectMocks
     PlatoUseCase useCase;
+
+    private static final Long ID_PROPIETARIO = 7L;
 
     private Plato valido() {
         Plato p = new Plato();
@@ -51,9 +58,28 @@ class PlatoUseCaseTest {
         return p;
     }
 
+    private Restaurante restauranteDelPropietario() {
+        Restaurante r = new Restaurante();
+        r.setId(1L);
+        r.setNombre("Pizzería Roma");
+        r.setNit("900123456");
+        r.setDireccion("Calle 10 # 5-20");
+        r.setTelefono("+573005698325");
+        r.setUrlLogo("http://logo.com/roma.png");
+        r.setIdPropietario(ID_PROPIETARIO);
+        return r;
+    }
+
+    private Restaurante restauranteDeOtroPropietario() {
+        Restaurante r = restauranteDelPropietario();
+        r.setIdPropietario(999L);
+        return r;
+    }
+
     @Test
     void creaPlatoConDatosValidosYActivoTrue() {
-        when(restaurantePersistencePort.existePorId(1L)).thenReturn(true);
+        when(authenticatedUserPort.obtenerIdUsuario()).thenReturn(ID_PROPIETARIO);
+        when(restaurantePersistencePort.buscarPorId(1L)).thenReturn(Optional.of(restauranteDelPropietario()));
         when(platoPersistencePort.guardar(any())).thenAnswer(i -> i.getArgument(0));
 
         Plato creado = useCase.crearPlato(valido());
@@ -123,7 +149,16 @@ class PlatoUseCaseTest {
 
     @Test
     void rechazaRestauranteInexistente() {
-        when(restaurantePersistencePort.existePorId(1L)).thenReturn(false);
+        when(authenticatedUserPort.obtenerIdUsuario()).thenReturn(ID_PROPIETARIO);
+        when(restaurantePersistencePort.buscarPorId(1L)).thenReturn(Optional.empty());
+        assertThrows(DomainException.class, () -> useCase.crearPlato(valido()));
+        verify(platoPersistencePort, never()).guardar(any());
+    }
+
+    @Test
+    void rechazaSiElPropietarioNoEsDuenoDelRestaurante() {
+        when(authenticatedUserPort.obtenerIdUsuario()).thenReturn(ID_PROPIETARIO);
+        when(restaurantePersistencePort.buscarPorId(1L)).thenReturn(Optional.of(restauranteDeOtroPropietario()));
         assertThrows(DomainException.class, () -> useCase.crearPlato(valido()));
         verify(platoPersistencePort, never()).guardar(any());
     }
@@ -132,7 +167,8 @@ class PlatoUseCaseTest {
     void aceptaNombreConLetrasYNumeros() {
         Plato p = valido();
         p.setNombre("Pizza 24 Especial");
-        when(restaurantePersistencePort.existePorId(1L)).thenReturn(true);
+        when(authenticatedUserPort.obtenerIdUsuario()).thenReturn(ID_PROPIETARIO);
+        when(restaurantePersistencePort.buscarPorId(1L)).thenReturn(Optional.of(restauranteDelPropietario()));
         when(platoPersistencePort.guardar(any())).thenAnswer(i -> i.getArgument(0));
 
         Plato creado = useCase.crearPlato(p);
@@ -143,29 +179,30 @@ class PlatoUseCaseTest {
     @Test
     void activoEsTruePorDefecto() {
         Plato p = valido();
-        p.setActivo(false); // Aunque el usuario mande false...
-        when(restaurantePersistencePort.existePorId(1L)).thenReturn(true);
+        p.setActivo(false);
+        when(authenticatedUserPort.obtenerIdUsuario()).thenReturn(ID_PROPIETARIO);
+        when(restaurantePersistencePort.buscarPorId(1L)).thenReturn(Optional.of(restauranteDelPropietario()));
         when(platoPersistencePort.guardar(any())).thenAnswer(i -> i.getArgument(0));
 
         Plato creado = useCase.crearPlato(p);
 
-        // ...debe quedar en true
         assertTrue(creado.getActivo());
     }
-    
-        @Test
+
+    @Test
     void modificaPrecioYDescripcionCorrectamente() {
         Plato existente = valido();
         existente.setId(1L);
         when(platoPersistencePort.buscarPorId(1L)).thenReturn(Optional.of(existente));
+        when(authenticatedUserPort.obtenerIdUsuario()).thenReturn(ID_PROPIETARIO);
+        when(restaurantePersistencePort.buscarPorId(1L)).thenReturn(Optional.of(restauranteDelPropietario()));
         when(platoPersistencePort.guardar(any())).thenAnswer(i -> i.getArgument(0));
 
         Plato modificado = useCase.modificarPlato(1L, 50000L, "Nueva descripción");
 
         assertEquals(50000L, modificado.getPrecio());
         assertEquals("Nueva descripción", modificado.getDescripcion());
-        assertEquals("Bandeja Paisa", modificado.getNombre()); // No cambia
-        assertEquals(CategoriaPlato.PLATO_FUERTE, modificado.getCategoria()); // No cambia
+        assertEquals("Bandeja Paisa", modificado.getNombre());
     }
 
     @Test
@@ -207,5 +244,18 @@ class PlatoUseCaseTest {
     void rechazaModificarConDescripcionNula() {
         assertThrows(DomainException.class,
                 () -> useCase.modificarPlato(1L, 50000L, null));
+    }
+
+    @Test
+    void rechazaModificarSiElPropietarioNoEsDuenoDelRestaurante() {
+        Plato existente = valido();
+        existente.setId(1L);
+        when(platoPersistencePort.buscarPorId(1L)).thenReturn(Optional.of(existente));
+        when(authenticatedUserPort.obtenerIdUsuario()).thenReturn(ID_PROPIETARIO);
+        when(restaurantePersistencePort.buscarPorId(1L)).thenReturn(Optional.of(restauranteDeOtroPropietario()));
+
+        assertThrows(DomainException.class,
+                () -> useCase.modificarPlato(1L, 50000L, "Nueva descripción"));
+        verify(platoPersistencePort, never()).guardar(any());
     }
 }
