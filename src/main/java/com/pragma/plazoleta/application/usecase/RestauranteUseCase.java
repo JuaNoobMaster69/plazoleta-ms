@@ -9,6 +9,8 @@ import com.pragma.plazoleta.domain.exception.DomainException;
 import com.pragma.plazoleta.domain.model.Restaurante;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
 import com.pragma.plazoleta.domain.spi.IUsuarioClientPort;
+import java.util.List;
+
 /**
  *
  * @author Juan Camilo
@@ -21,7 +23,7 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     private final IUsuarioClientPort usuarioClientPort;
 
     public RestauranteUseCase(IRestaurantePersistencePort persistencePort,
-                              IUsuarioClientPort usuarioClientPort) {
+            IUsuarioClientPort usuarioClientPort) {
         this.persistencePort = persistencePort;
         this.usuarioClientPort = usuarioClientPort;
     }
@@ -40,6 +42,17 @@ public class RestauranteUseCase implements IRestauranteServicePort {
         }
 
         return persistencePort.guardar(r);
+    }
+
+    @Override
+    public List<Restaurante> listarRestaurantes(int page, int size) {
+        if (page < 0) {
+            throw new DomainException("El número de página no puede ser negativo");
+        }
+        if (size <= 0) {
+            throw new DomainException("El tamaño de página debe ser mayor a 0");
+        }
+        return persistencePort.listarPaginado(page, size);
     }
 
     private void validarCampos(Restaurante r) {

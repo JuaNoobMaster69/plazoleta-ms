@@ -39,6 +39,8 @@ public class SecurityConfig {
                     "/swagger-ui.html",
                     "/v3/api-docs/**"
                 ).permitAll()
+                // Listar restaurantes: público
+                .requestMatchers(HttpMethod.GET, "/restaurantes").permitAll()
                 // Crear restaurante: solo ADMINISTRADOR
                 .requestMatchers(HttpMethod.POST, "/restaurantes").hasRole("ADMINISTRADOR")
                 // Crear plato: solo PROPIETARIO

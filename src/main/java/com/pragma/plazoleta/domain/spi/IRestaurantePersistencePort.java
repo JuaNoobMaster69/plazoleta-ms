@@ -5,6 +5,7 @@
 package com.pragma.plazoleta.domain.spi;
 
 import com.pragma.plazoleta.domain.model.Restaurante;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,4 +21,6 @@ public interface IRestaurantePersistencePort {
     boolean existePorId(Long id);
 
     Optional<Restaurante> buscarPorId(Long id);
+
+    List<Restaurante> listarPaginado(int page, int size);
 }

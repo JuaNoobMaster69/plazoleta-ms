@@ -5,6 +5,7 @@
 package com.pragma.plazoleta.domain.api;
 
 import com.pragma.plazoleta.domain.model.Restaurante;
+import java.util.List;
 
 /**
  *
@@ -13,4 +14,6 @@ import com.pragma.plazoleta.domain.model.Restaurante;
 public interface IRestauranteServicePort {
 
     Restaurante crearRestaurante(Restaurante restaurante);
+
+    List<Restaurante> listarRestaurantes(int page, int size);
 }

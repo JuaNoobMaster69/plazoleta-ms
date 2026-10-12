@@ -5,6 +5,7 @@
 package com.pragma.plazoleta.infrastructure.input.rest.mapper;
 
 import com.pragma.plazoleta.domain.model.Restaurante;
+import com.pragma.plazoleta.infrastructure.input.rest.dto.RestauranteListadoDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.RestauranteRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.RestauranteResponseDto;
 import org.springframework.stereotype.Component;
@@ -30,5 +31,9 @@ public class RestauranteRequestMapper {
     public RestauranteResponseDto toResponse(Restaurante r) {
         return new RestauranteResponseDto(r.getId(), r.getNombre(), r.getNit(),
                 r.getDireccion(), r.getTelefono(), r.getUrlLogo(), r.getIdPropietario());
+    }
+
+    public RestauranteListadoDto toListadoDto(Restaurante r) {
+        return new RestauranteListadoDto(r.getNombre(), r.getUrlLogo());
     }
 }
