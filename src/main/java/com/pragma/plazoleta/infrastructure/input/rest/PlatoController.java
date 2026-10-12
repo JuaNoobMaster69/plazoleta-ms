@@ -5,6 +5,7 @@
 package com.pragma.plazoleta.infrastructure.input.rest;
 
 import com.pragma.plazoleta.domain.api.IPlatoServicePort;
+import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoEstadoRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoResponseDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoUpdateRequestDto;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -52,5 +54,15 @@ public class PlatoController {
             @RequestBody PlatoUpdateRequestDto request) {
         var modificado = servicePort.modificarPlato(id, request.precio(), request.descripcion());
         return ResponseEntity.ok(mapper.toResponse(modificado));
+    }
+
+    @Operation(summary = "Habilitar/Deshabilitar un plato (solo el propietario del restaurante)")
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<PlatoResponseDto> cambiarEstado(
+            @PathVariable Long id,
+            @RequestBody PlatoEstadoRequestDto request) {
+        var actualizado = servicePort.cambiarEstadoPlato(id, request.activo());
+        return ResponseEntity.ok(mapper.toResponse(actualizado));
     }
 }

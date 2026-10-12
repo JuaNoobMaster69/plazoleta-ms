@@ -25,8 +25,8 @@ public class PlatoUseCase implements IPlatoServicePort {
     private final IAuthenticatedUserPort authenticatedUserPort;
 
     public PlatoUseCase(IPlatoPersistencePort platoPersistencePort,
-                        IRestaurantePersistencePort restaurantePersistencePort,
-                        IAuthenticatedUserPort authenticatedUserPort) {
+            IRestaurantePersistencePort restaurantePersistencePort,
+            IAuthenticatedUserPort authenticatedUserPort) {
         this.platoPersistencePort = platoPersistencePort;
         this.restaurantePersistencePort = restaurantePersistencePort;
         this.authenticatedUserPort = authenticatedUserPort;
@@ -95,5 +95,21 @@ public class PlatoUseCase implements IPlatoServicePort {
 
     private boolean vacio(String valor) {
         return valor == null || valor.isBlank();
+    }
+
+    @Override
+    public Plato cambiarEstadoPlato(Long id, Boolean activo) {
+        if (activo == null) {
+            throw new DomainException("El estado del plato es obligatorio");
+        }
+
+        Plato plato = platoPersistencePort.buscarPorId(id)
+                .orElseThrow(() -> new DomainException("No existe un plato con ese id"));
+
+        Long idUsuarioAutenticado = authenticatedUserPort.obtenerIdUsuario();
+        validarRestauranteYPropietario(plato.getIdRestaurante(), idUsuarioAutenticado);
+
+        plato.setActivo(activo);
+        return platoPersistencePort.guardar(plato);
     }
 }
