@@ -5,6 +5,7 @@
 package com.pragma.plazoleta.application.usecase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,6 +56,7 @@ class PlatoUseCaseTest {
         p.setUrlImagen("http://logo.com/bandeja.png");
         p.setCategoria(CategoriaPlato.PLATO_FUERTE);
         p.setIdRestaurante(1L);
+        p.setActivo(true);
         return p;
     }
 
@@ -75,6 +77,10 @@ class PlatoUseCaseTest {
         r.setIdPropietario(999L);
         return r;
     }
+
+    // =========================================================
+    // HU3: crearPlato
+    // =========================================================
 
     @Test
     void creaPlatoConDatosValidosYActivoTrue() {
@@ -189,6 +195,10 @@ class PlatoUseCaseTest {
         assertTrue(creado.getActivo());
     }
 
+    // =========================================================
+    // HU4: modificarPlato
+    // =========================================================
+
     @Test
     void modificaPrecioYDescripcionCorrectamente() {
         Plato existente = valido();
@@ -256,6 +266,61 @@ class PlatoUseCaseTest {
 
         assertThrows(DomainException.class,
                 () -> useCase.modificarPlato(1L, 50000L, "Nueva descripción"));
+        verify(platoPersistencePort, never()).guardar(any());
+    }
+
+    // =========================================================
+    // HU7: cambiarEstadoPlato
+    // =========================================================
+
+    @Test
+    void cambiarEstadoPlato_conDatosValidosYPropietarioDueno_actualizaEstado() {
+        Plato existente = valido();
+        existente.setId(1L);
+        existente.setActivo(true);
+        when(platoPersistencePort.buscarPorId(1L)).thenReturn(Optional.of(existente));
+        when(authenticatedUserPort.obtenerIdUsuario()).thenReturn(ID_PROPIETARIO);
+        when(restaurantePersistencePort.buscarPorId(1L)).thenReturn(Optional.of(restauranteDelPropietario()));
+        when(platoPersistencePort.guardar(any())).thenAnswer(i -> i.getArgument(0));
+
+        Plato resultado = useCase.cambiarEstadoPlato(1L, false);
+
+        assertFalse(resultado.getActivo());
+        verify(platoPersistencePort).guardar(any());
+    }
+
+    @Test
+    void cambiarEstadoPlato_conPlatoInexistente_lanzaExcepcion() {
+        when(platoPersistencePort.buscarPorId(999L)).thenReturn(Optional.empty());
+
+        DomainException ex = assertThrows(DomainException.class,
+                () -> useCase.cambiarEstadoPlato(999L, false));
+
+        assertEquals("No existe un plato con ese id", ex.getMessage());
+        verify(platoPersistencePort, never()).guardar(any());
+    }
+
+    @Test
+    void cambiarEstadoPlato_conPropietarioNoDueno_lanzaExcepcion() {
+        Plato existente = valido();
+        existente.setId(1L);
+        when(platoPersistencePort.buscarPorId(1L)).thenReturn(Optional.of(existente));
+        when(authenticatedUserPort.obtenerIdUsuario()).thenReturn(ID_PROPIETARIO);
+        when(restaurantePersistencePort.buscarPorId(1L)).thenReturn(Optional.of(restauranteDeOtroPropietario()));
+
+        DomainException ex = assertThrows(DomainException.class,
+                () -> useCase.cambiarEstadoPlato(1L, false));
+
+        assertEquals("No tiene permiso para modificar platos de este restaurante", ex.getMessage());
+        verify(platoPersistencePort, never()).guardar(any());
+    }
+
+    @Test
+    void cambiarEstadoPlato_conEstadoNulo_lanzaExcepcion() {
+        DomainException ex = assertThrows(DomainException.class,
+                () -> useCase.cambiarEstadoPlato(1L, null));
+
+        assertEquals("El estado del plato es obligatorio", ex.getMessage());
         verify(platoPersistencePort, never()).guardar(any());
     }
 }
