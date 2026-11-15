@@ -51,6 +51,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/platos/*").hasRole("PROPIETARIO")
                 // Habilitar/Deshabilitar plato: solo PROPIETARIO
                 .requestMatchers(HttpMethod.PATCH, "/platos/*/estado").hasRole("PROPIETARIO")
+                // Crear pedido: solo CLIENTE
+                .requestMatchers(HttpMethod.POST, "/pedidos").hasRole("CLIENTE")
                 // Todo lo demás: autenticado
                 .anyRequest().authenticated()
                 )
@@ -60,4 +62,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }
