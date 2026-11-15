@@ -8,6 +8,7 @@ import com.pragma.plazoleta.domain.api.IPedidoServicePort;
 import com.pragma.plazoleta.domain.exception.DomainException;
 import com.pragma.plazoleta.domain.model.DetallePedido;
 import com.pragma.plazoleta.domain.model.EstadoPedido;
+import com.pragma.plazoleta.domain.model.Pagina;
 import com.pragma.plazoleta.domain.model.Pedido;
 import com.pragma.plazoleta.domain.spi.IAuthenticatedUserPort;
 import com.pragma.plazoleta.domain.spi.IPedidoPersistencePort;
@@ -88,5 +89,23 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setFechaCreacion(LocalDateTime.now());
 
         return pedidoPersistencePort.guardar(pedido);
+    }
+
+    @Override
+    public Pagina<Pedido> listarPedidos(Long idRestaurante, EstadoPedido estado, int pagina, int tamano) {
+        if (pagina < 0) {
+            throw new DomainException("El número de página no puede ser negativo");
+        }
+        if (tamano < 1) {
+            throw new DomainException("El tamaño de la página debe ser al menos 1");
+        }
+        if (idRestaurante == null) {
+            throw new DomainException("El id del restaurante es obligatorio");
+        }
+        if (estado == null) {
+            throw new DomainException("El estado del pedido es obligatorio");
+        }
+
+        return pedidoPersistencePort.listarPorRestauranteYEstado(idRestaurante, estado, pagina, tamano);
     }
 }

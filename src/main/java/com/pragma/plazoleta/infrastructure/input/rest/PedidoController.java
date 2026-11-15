@@ -5,6 +5,9 @@
 package com.pragma.plazoleta.infrastructure.input.rest;
 
 import com.pragma.plazoleta.domain.api.IPedidoServicePort;
+import com.pragma.plazoleta.domain.model.EstadoPedido;
+import com.pragma.plazoleta.domain.model.Pagina;
+import com.pragma.plazoleta.domain.model.Pedido;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PedidoRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PedidoResponseDto;
 import com.pragma.plazoleta.infrastructure.input.rest.mapper.PedidoRequestMapper;
@@ -12,9 +15,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -39,5 +44,20 @@ public class PedidoController {
     public ResponseEntity<PedidoResponseDto> crearPedido(@RequestBody PedidoRequestDto request) {
         var creado = servicePort.crearPedido(mapper.toModel(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(creado));
+    }
+
+    @Operation(summary = "Listar pedidos por estado y restaurante (solo empleado)")
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping
+    public ResponseEntity<Pagina<PedidoResponseDto>> listarPedidos(
+            @RequestParam Long idRestaurante,
+            @RequestParam EstadoPedido estado,
+            @RequestParam(defaultValue = "0", name = "pagina") int pagina,
+            @RequestParam(defaultValue = "10", name = "tamano") int tamano) {
+
+        Pagina<Pedido> paginacion = servicePort.listarPedidos(idRestaurante, estado, pagina, tamano);
+        Pagina<PedidoResponseDto> respuesta = paginacion.map(mapper::toResponse);
+
+        return ResponseEntity.ok(respuesta);
     }
 }

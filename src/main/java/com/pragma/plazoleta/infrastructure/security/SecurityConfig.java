@@ -53,6 +53,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PATCH, "/platos/*/estado").hasRole("PROPIETARIO")
                 // Crear pedido: solo CLIENTE
                 .requestMatchers(HttpMethod.POST, "/pedidos").hasRole("CLIENTE")
+                // Listar pedidos por estado: solo EMPLEADO
+                .requestMatchers(HttpMethod.GET, "/pedidos").hasRole("EMPLEADO")
                 // Todo lo demás: autenticado
                 .anyRequest().authenticated()
                 )
