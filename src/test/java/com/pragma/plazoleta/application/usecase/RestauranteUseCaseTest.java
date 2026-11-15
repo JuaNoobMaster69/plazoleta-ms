@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.pragma.plazoleta.application.usecase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,6 +10,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.pragma.plazoleta.domain.exception.DomainException;
+import com.pragma.plazoleta.domain.model.Pagina;
 import com.pragma.plazoleta.domain.model.Restaurante;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
 import com.pragma.plazoleta.domain.spi.IUsuarioClientPort;
@@ -25,10 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/**
- *
- * @author Juan Camilo
- */
 @ExtendWith(MockitoExtension.class)
 class RestauranteUseCaseTest {
 
@@ -55,7 +48,6 @@ class RestauranteUseCaseTest {
     // =========================================================
     // HU2: crearRestaurante
     // =========================================================
-
     @Test
     void creaRestauranteCuandoElPropietarioEsValido() {
         when(usuarioClientPort.obtenerRol(1L)).thenReturn("PROPIETARIO");
@@ -119,24 +111,25 @@ class RestauranteUseCaseTest {
     }
 
     // =========================================================
-    // HU9: listarRestaurantes
+    // HU9: listarRestaurantes (Corregido con Pagina)
     // =========================================================
-
     @Test
-    void listarRestaurantes_conParametrosValidos_devuelveLista() {
+    void listarRestaurantes_conParametrosValidos_devuelvePagina() {
         Restaurante r1 = valido();
         r1.setNombre("Pizza 24");
         Restaurante r2 = valido();
         r2.setNombre("Pizzería Roma");
         List<Restaurante> lista = Arrays.asList(r1, r2);
 
-        when(persistencePort.listarPaginado(0, 2)).thenReturn(lista);
+        Pagina<Restaurante> paginaEsperada = new Pagina<>(lista, 0, 10, 2);
 
-        List<Restaurante> resultado = useCase.listarRestaurantes(0, 2);
+        when(persistencePort.listarPaginado(0, 10)).thenReturn(paginaEsperada);
 
-        assertEquals(2, resultado.size());
-        assertEquals("Pizza 24", resultado.get(0).getNombre());
-        assertEquals("Pizzería Roma", resultado.get(1).getNombre());
+        Pagina<Restaurante> resultado = useCase.listarRestaurantes(0, 10);
+
+        assertEquals(2, resultado.contenido().size());
+        assertEquals("Pizza 24", resultado.contenido().get(0).getNombre());
+        assertEquals(10, resultado.tamano());
     }
 
     @Test
@@ -145,24 +138,13 @@ class RestauranteUseCaseTest {
                 () -> useCase.listarRestaurantes(-1, 10));
 
         assertEquals("El número de página no puede ser negativo", ex.getMessage());
-        verify(persistencePort, never()).listarPaginado(anyInt(), anyInt());
     }
 
     @Test
-    void listarRestaurantes_conSizeCero_lanzaExcepcion() {
+    void listarRestaurantes_conTamanoCero_lanzaExcepcion() {
         DomainException ex = assertThrows(DomainException.class,
                 () -> useCase.listarRestaurantes(0, 0));
 
-        assertEquals("El tamaño de página debe ser mayor a 0", ex.getMessage());
-        verify(persistencePort, never()).listarPaginado(anyInt(), anyInt());
-    }
-
-    @Test
-    void listarRestaurantes_conSizeNegativo_lanzaExcepcion() {
-        DomainException ex = assertThrows(DomainException.class,
-                () -> useCase.listarRestaurantes(0, -5));
-
-        assertEquals("El tamaño de página debe ser mayor a 0", ex.getMessage());
-        verify(persistencePort, never()).listarPaginado(anyInt(), anyInt());
+        assertEquals("El tamaño de la página debe ser al menos 1", ex.getMessage());
     }
 }

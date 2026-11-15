@@ -4,6 +4,7 @@
  */
 package com.pragma.plazoleta.domain.api;
 
+import com.pragma.plazoleta.domain.model.Pagina;
 import com.pragma.plazoleta.domain.model.Restaurante;
 import java.util.List;
 
@@ -15,5 +16,6 @@ public interface IRestauranteServicePort {
 
     Restaurante crearRestaurante(Restaurante restaurante);
 
-    List<Restaurante> listarRestaurantes(int page, int size);
+    // Ahora solo recibe 'page' y devuelve Pagina
+    Pagina<Restaurante> listarRestaurantes(int pagina, int tamano);
 }

@@ -5,6 +5,8 @@
 package com.pragma.plazoleta.infrastructure.input.rest;
 
 import com.pragma.plazoleta.domain.api.IRestauranteServicePort;
+import com.pragma.plazoleta.domain.model.Pagina;
+import com.pragma.plazoleta.domain.model.Restaurante;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.RestauranteListadoDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.RestauranteRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.RestauranteResponseDto;
@@ -47,13 +49,13 @@ public class RestauranteRestController {
 
     @Operation(summary = "Listar restaurantes por orden alfabético (público)")
     @GetMapping
-    public ResponseEntity<List<RestauranteListadoDto>> listarRestaurantes(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        var lista = servicePort.listarRestaurantes(page, size)
-                .stream()
-                .map(mapper::toListadoDto)
-                .toList();
-        return ResponseEntity.ok(lista);
+    public ResponseEntity<Pagina<RestauranteListadoDto>> listarRestaurantes(
+            @RequestParam(defaultValue = "0", name = "pagina") int pagina,
+            @RequestParam(defaultValue = "10", name = "tamano") int tamano) {
+
+        Pagina<Restaurante> paginacion = servicePort.listarRestaurantes(pagina, tamano);
+        Pagina<RestauranteListadoDto> respuesta = paginacion.map(mapper::toListadoDto);
+
+        return ResponseEntity.ok(respuesta);
     }
 }

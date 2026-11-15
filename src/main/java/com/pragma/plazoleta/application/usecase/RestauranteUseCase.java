@@ -6,6 +6,7 @@ package com.pragma.plazoleta.application.usecase;
 
 import com.pragma.plazoleta.domain.api.IRestauranteServicePort;
 import com.pragma.plazoleta.domain.exception.DomainException;
+import com.pragma.plazoleta.domain.model.Pagina;
 import com.pragma.plazoleta.domain.model.Restaurante;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
 import com.pragma.plazoleta.domain.spi.IUsuarioClientPort;
@@ -45,14 +46,14 @@ public class RestauranteUseCase implements IRestauranteServicePort {
     }
 
     @Override
-    public List<Restaurante> listarRestaurantes(int page, int size) {
-        if (page < 0) {
+    public Pagina<Restaurante> listarRestaurantes(int pagina, int tamano) {
+        if (pagina < 0) {
             throw new DomainException("El número de página no puede ser negativo");
         }
-        if (size <= 0) {
-            throw new DomainException("El tamaño de página debe ser mayor a 0");
+        if (tamano < 1) {
+            throw new DomainException("El tamaño de la página debe ser al menos 1");
         }
-        return persistencePort.listarPaginado(page, size);
+        return persistencePort.listarPaginado(pagina, tamano);
     }
 
     private void validarCampos(Restaurante r) {

@@ -4,12 +4,15 @@
  */
 package com.pragma.plazoleta.infrastructure.output.jpa.adapter;
 
+import com.pragma.plazoleta.domain.model.Pagina;
 import com.pragma.plazoleta.domain.model.Restaurante;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
+import com.pragma.plazoleta.infrastructure.output.jpa.entity.RestauranteEntity;
 import com.pragma.plazoleta.infrastructure.output.jpa.mapper.RestauranteEntityMapper;
 import com.pragma.plazoleta.infrastructure.output.jpa.repository.IRestauranteRepository;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -50,11 +53,19 @@ public class RestauranteJpaAdapter implements IRestaurantePersistencePort {
     }
 
     @Override
-    public List<Restaurante> listarPaginado(int page, int size) {
+    public Pagina<Restaurante> listarPaginado(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return repository.findAllByOrderByNombreAsc(pageable)
-                .stream()
+        Page<RestauranteEntity> pageEntity = repository.findAllByOrderByNombreAsc(pageable);
+
+        List<Restaurante> lista = pageEntity.getContent().stream()
                 .map(mapper::toModel)
                 .toList();
+
+        return new Pagina<>(
+                lista,
+                pageEntity.getNumber(),
+                pageEntity.getSize(),
+                pageEntity.getTotalElements()
+        );
     }
 }
