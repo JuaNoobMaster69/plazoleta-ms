@@ -6,6 +6,8 @@ package com.pragma.plazoleta.application.usecase;
 
 import com.pragma.plazoleta.domain.api.IPlatoServicePort;
 import com.pragma.plazoleta.domain.exception.DomainException;
+import com.pragma.plazoleta.domain.model.CategoriaPlato;
+import com.pragma.plazoleta.domain.model.Pagina;
 import com.pragma.plazoleta.domain.model.Plato;
 import com.pragma.plazoleta.domain.model.Restaurante;
 import com.pragma.plazoleta.domain.spi.IAuthenticatedUserPort;
@@ -38,7 +40,7 @@ public class PlatoUseCase implements IPlatoServicePort {
         validarPrecio(plato.getPrecio());
 
         Long idUsuarioAutenticado = authenticatedUserPort.obtenerIdUsuario();
-        Restaurante restaurante = validarRestauranteYPropietario(plato.getIdRestaurante(), idUsuarioAutenticado);
+        validarRestauranteYPropietario(plato.getIdRestaurante(), idUsuarioAutenticado);
 
         plato.setActivo(true);
         return platoPersistencePort.guardar(plato);
@@ -111,5 +113,24 @@ public class PlatoUseCase implements IPlatoServicePort {
 
         plato.setActivo(activo);
         return platoPersistencePort.guardar(plato);
+    }
+    
+        @Override
+    public Pagina<Plato> listarPlatos(Long idRestaurante, CategoriaPlato categoria, int pagina, int tamano) {
+        if (pagina < 0) {
+            throw new DomainException("El número de página no puede ser negativo");
+        }
+        if (tamano < 1) {
+            throw new DomainException("El tamaño de la página debe ser al menos 1");
+        }
+        if (idRestaurante == null) {
+            throw new DomainException("El id del restaurante es obligatorio");
+        }
+
+        // Verificamos que el restaurante exista
+        restaurantePersistencePort.buscarPorId(idRestaurante)
+                .orElseThrow(() -> new DomainException("El restaurante indicado no existe"));
+
+        return platoPersistencePort.listarPorRestauranteYCategoria(idRestaurante, categoria, pagina, tamano);
     }
 }

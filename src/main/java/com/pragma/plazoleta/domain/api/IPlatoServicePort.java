@@ -4,6 +4,8 @@
  */
 package com.pragma.plazoleta.domain.api;
 
+import com.pragma.plazoleta.domain.model.CategoriaPlato;
+import com.pragma.plazoleta.domain.model.Pagina;
 import com.pragma.plazoleta.domain.model.Plato;
 
 /**
@@ -17,4 +19,7 @@ public interface IPlatoServicePort {
     Plato modificarPlato(Long id, Long precio, String descripcion);
 
     Plato cambiarEstadoPlato(Long id, Boolean activo);
+    
+    Pagina<Plato> listarPlatos(Long idRestaurante, CategoriaPlato categoria, int pagina, int tamano);
+    
 }
