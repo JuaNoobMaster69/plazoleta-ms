@@ -5,6 +5,9 @@
 package com.pragma.plazoleta.infrastructure.input.rest;
 
 import com.pragma.plazoleta.domain.api.IPlatoServicePort;
+import com.pragma.plazoleta.domain.model.CategoriaPlato;
+import com.pragma.plazoleta.domain.model.Pagina;
+import com.pragma.plazoleta.domain.model.Plato;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoEstadoRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoRequestDto;
 import com.pragma.plazoleta.infrastructure.input.rest.dto.PlatoResponseDto;
@@ -14,12 +17,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -64,5 +69,19 @@ public class PlatoController {
             @RequestBody PlatoEstadoRequestDto request) {
         var actualizado = servicePort.cambiarEstadoPlato(id, request.activo());
         return ResponseEntity.ok(mapper.toResponse(actualizado));
+    }
+
+    @Operation(summary = "Listar platos de un restaurante por categoría (público)")
+    @GetMapping("/restaurante/{idRestaurante}")
+    public ResponseEntity<Pagina<PlatoResponseDto>> listarPlatos(
+            @PathVariable Long idRestaurante,
+            @RequestParam(required = false) CategoriaPlato categoria,
+            @RequestParam(defaultValue = "0", name = "pagina") int pagina,
+            @RequestParam(defaultValue = "10", name = "tamano") int tamano) {
+
+        Pagina<Plato> paginacion = servicePort.listarPlatos(idRestaurante, categoria, pagina, tamano);
+        Pagina<PlatoResponseDto> respuesta = paginacion.map(mapper::toResponse);
+
+        return ResponseEntity.ok(respuesta);
     }
 }
