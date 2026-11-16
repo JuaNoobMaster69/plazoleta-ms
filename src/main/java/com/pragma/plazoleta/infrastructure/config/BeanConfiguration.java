@@ -11,6 +11,7 @@ import com.pragma.plazoleta.domain.api.IPedidoServicePort;
 import com.pragma.plazoleta.domain.api.IPlatoServicePort;
 import com.pragma.plazoleta.domain.api.IRestauranteServicePort;
 import com.pragma.plazoleta.domain.spi.IAuthenticatedUserPort;
+import com.pragma.plazoleta.domain.spi.IMensajeriaClientPort;
 import com.pragma.plazoleta.domain.spi.IPedidoPersistencePort;
 import com.pragma.plazoleta.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
@@ -42,7 +43,8 @@ public class BeanConfiguration {
     public IPedidoServicePort pedidoServicePort(IPedidoPersistencePort pedidoPersistencePort,
             IRestaurantePersistencePort restaurantePersistencePort,
             IPlatoPersistencePort platoPersistencePort,
-            IAuthenticatedUserPort authenticatedUserPort) {
-        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort, platoPersistencePort, authenticatedUserPort);
+            IAuthenticatedUserPort authenticatedUserPort,
+            IMensajeriaClientPort mensajeriaClientPort) {
+        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort, platoPersistencePort, authenticatedUserPort, mensajeriaClientPort);
     }
 }

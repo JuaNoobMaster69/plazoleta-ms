@@ -70,4 +70,12 @@ public class PedidoController {
         var asignado = servicePort.asignarPedido(id);
         return ResponseEntity.ok(mapper.toResponse(asignado));
     }
+
+    @Operation(summary = "Marcar pedido como LISTO y generar PIN (solo empleado)")
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/{id}/listo")
+    public ResponseEntity<PedidoResponseDto> marcarListo(@PathVariable Long id) {
+        var listo = servicePort.marcarPedidoListo(id);
+        return ResponseEntity.ok(mapper.toResponse(listo));
+    }
 }

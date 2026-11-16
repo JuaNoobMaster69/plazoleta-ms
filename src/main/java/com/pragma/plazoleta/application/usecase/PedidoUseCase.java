@@ -11,6 +11,7 @@ import com.pragma.plazoleta.domain.model.EstadoPedido;
 import com.pragma.plazoleta.domain.model.Pagina;
 import com.pragma.plazoleta.domain.model.Pedido;
 import com.pragma.plazoleta.domain.spi.IAuthenticatedUserPort;
+import com.pragma.plazoleta.domain.spi.IMensajeriaClientPort;
 import com.pragma.plazoleta.domain.spi.IPedidoPersistencePort;
 import com.pragma.plazoleta.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
@@ -28,15 +29,18 @@ public class PedidoUseCase implements IPedidoServicePort {
     private final IRestaurantePersistencePort restaurantePersistencePort;
     private final IPlatoPersistencePort platoPersistencePort;
     private final IAuthenticatedUserPort authenticatedUserPort;
+    private final IMensajeriaClientPort mensajeriaClientPort;
 
     public PedidoUseCase(IPedidoPersistencePort pedidoPersistencePort,
             IRestaurantePersistencePort restaurantePersistencePort,
             IPlatoPersistencePort platoPersistencePort,
-            IAuthenticatedUserPort authenticatedUserPort) {
+            IAuthenticatedUserPort authenticatedUserPort,
+            IMensajeriaClientPort mensajeriaClientPort) {
         this.pedidoPersistencePort = pedidoPersistencePort;
         this.restaurantePersistencePort = restaurantePersistencePort;
         this.platoPersistencePort = platoPersistencePort;
         this.authenticatedUserPort = authenticatedUserPort;
+        this.mensajeriaClientPort = mensajeriaClientPort;
     }
 
     @Override
@@ -128,5 +132,26 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setEstado(EstadoPedido.EN_PREPARACION);
 
         return pedidoPersistencePort.guardar(pedido);
+    }
+
+    @Override
+    public Pedido marcarPedidoListo(Long idPedido) {
+        Pedido pedido = pedidoPersistencePort.buscarPorId(idPedido)
+                .orElseThrow(() -> new DomainException("No existe un pedido con ese id"));
+
+        if (pedido.getEstado() != EstadoPedido.EN_PREPARACION) {
+            throw new DomainException("Solo se pueden marcar como LISTO los pedidos en EN_PREPARACION");
+        }
+
+        int pinInt = (int) (Math.random() * 900000) + 100000;
+        pedido.setPinSeguridad(String.valueOf(pinInt));
+        pedido.setEstado(EstadoPedido.LISTO);
+
+        Pedido guardado = pedidoPersistencePort.guardar(pedido);
+
+        // Llamada al microservicio de mensajería (simulada por ahora)
+        mensajeriaClientPort.enviarSms("3001234567", pedido.getPinSeguridad());
+
+        return guardado;
     }
 }

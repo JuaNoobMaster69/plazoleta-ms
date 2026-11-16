@@ -44,14 +44,15 @@ public class PedidoRequestMapper {
                     .collect(Collectors.toList())
                 : null;
 
-        return new PedidoResponseDto(
-                p.getId(),
-                p.getIdCliente(),
-                p.getIdRestaurante(),
-                p.getEstado() != null ? p.getEstado().name() : null,
-                p.getFechaCreacion(),
-                p.getIdEmpleado(), // <-- Nuevo campo
-                platos
-        );
+            return new PedidoResponseDto(
+                    p.getId(),
+                    p.getIdCliente(),
+                    p.getIdRestaurante(),
+                    p.getEstado() != null ? p.getEstado().name() : null,
+                    p.getFechaCreacion(),
+                    p.getIdEmpleado(),
+                    p.getPinSeguridad(),
+                    platos
+            );
     }
 }

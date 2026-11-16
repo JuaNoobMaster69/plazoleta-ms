@@ -17,5 +17,6 @@ public record PedidoResponseDto(
         String estado,
         LocalDateTime fechaCreacion,
         Long idEmpleado,
+        String pinSeguridad,
         List<DetallePedidoResponseDto> platos) {
 }

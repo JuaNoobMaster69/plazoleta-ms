@@ -24,4 +24,5 @@ public interface IPedidoPersistencePort {
     Pagina<Pedido> listarPorRestauranteYEstado(Long idRestaurante, EstadoPedido estado, int pagina, int tamano);
 
     Optional<Pedido> buscarPorId(Long id);
+    
 }

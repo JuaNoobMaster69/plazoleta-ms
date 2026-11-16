@@ -58,6 +58,8 @@ public class SecurityConfig {
                 // Asignar pedido: solo EMPLEADO
                 .requestMatchers(HttpMethod.PATCH, "/pedidos/*/asignar").hasRole("EMPLEADO")
                 // Todo lo demás: autenticado
+                // Marcar pedido como listo: solo EMPLEADO
+                .requestMatchers(HttpMethod.PATCH, "/pedidos/*/listo").hasRole("EMPLEADO")
                 .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic.disable())
