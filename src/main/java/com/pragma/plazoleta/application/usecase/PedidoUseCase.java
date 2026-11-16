@@ -150,7 +150,7 @@ public class PedidoUseCase implements IPedidoServicePort {
         Pedido guardado = pedidoPersistencePort.guardar(pedido);
 
         // Llamada al microservicio de mensajería (simulada por ahora)
-        mensajeriaClientPort.enviarSms("3001234567", pedido.getPinSeguridad());
+        mensajeriaClientPort.enviarSms("+573052763858", pedido.getPinSeguridad());
 
         return guardado;
     }
