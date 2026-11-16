@@ -78,4 +78,16 @@ public class PedidoController {
         var listo = servicePort.marcarPedidoListo(id);
         return ResponseEntity.ok(mapper.toResponse(listo));
     }
+
+    @Operation(summary = "Entregar un pedido (solo empleado)")
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/{id}/entregar")
+    public ResponseEntity<PedidoResponseDto> entregarPedido(
+            @PathVariable Long id,
+            @RequestParam String pin) {
+
+        var entregado = servicePort.entregarPedido(id, pin);
+        return ResponseEntity.ok(mapper.toResponse(entregado));
+    }
+
 }

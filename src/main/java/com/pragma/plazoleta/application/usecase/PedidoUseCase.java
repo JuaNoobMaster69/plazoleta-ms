@@ -18,6 +18,13 @@ import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
@@ -175,4 +182,6 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setEstado(EstadoPedido.ENTREGADO);
         return pedidoPersistencePort.guardar(pedido);
     }
+    
+    
 }
