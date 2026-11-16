@@ -55,6 +55,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/pedidos").hasRole("CLIENTE")
                 // Listar pedidos por estado: solo EMPLEADO
                 .requestMatchers(HttpMethod.GET, "/pedidos").hasRole("EMPLEADO")
+                // Asignar pedido: solo EMPLEADO
+                .requestMatchers(HttpMethod.PATCH, "/pedidos/*/asignar").hasRole("EMPLEADO")
                 // Todo lo demás: autenticado
                 .anyRequest().authenticated()
                 )

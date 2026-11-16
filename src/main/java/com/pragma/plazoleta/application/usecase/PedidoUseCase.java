@@ -108,4 +108,25 @@ public class PedidoUseCase implements IPedidoServicePort {
 
         return pedidoPersistencePort.listarPorRestauranteYEstado(idRestaurante, estado, pagina, tamano);
     }
+
+    @Override
+    public Pedido asignarPedido(Long idPedido) {
+        // 1. Obtener el ID del empleado autenticado
+        Long idEmpleado = authenticatedUserPort.obtenerIdUsuario();
+
+        // 2. Buscar el pedido
+        Pedido pedido = pedidoPersistencePort.buscarPorId(idPedido)
+                .orElseThrow(() -> new DomainException("No existe un pedido con ese id"));
+
+        // 3. Validar que el pedido esté en estado PENDIENTE
+        if (pedido.getEstado() != EstadoPedido.PENDIENTE) {
+            throw new DomainException("Solo se pueden asignar pedidos en estado PENDIENTE");
+        }
+
+        // 4. Asignar el empleado y cambiar el estado
+        pedido.setIdEmpleado(idEmpleado);
+        pedido.setEstado(EstadoPedido.EN_PREPARACION);
+
+        return pedidoPersistencePort.guardar(pedido);
+    }
 }

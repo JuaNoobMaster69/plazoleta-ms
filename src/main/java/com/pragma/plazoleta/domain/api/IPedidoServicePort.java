@@ -17,4 +17,6 @@ public interface IPedidoServicePort {
     Pedido crearPedido(Pedido pedido);
 
     Pagina<Pedido> listarPedidos(Long idRestaurante, EstadoPedido estado, int pagina, int tamano);
+
+    Pedido asignarPedido(Long idPedido);
 }

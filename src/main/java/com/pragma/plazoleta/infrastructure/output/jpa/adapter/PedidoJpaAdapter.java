@@ -14,6 +14,7 @@ import com.pragma.plazoleta.infrastructure.output.jpa.repository.IPedidoReposito
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -58,5 +59,10 @@ public class PedidoJpaAdapter implements IPedidoPersistencePort {
                 pageEntity.getSize(),
                 pageEntity.getTotalElements()
         );
+    }
+
+    @Override
+    public Optional<Pedido> buscarPorId(Long id) {
+        return repository.findById(id).map(mapper::toModel);
     }
 }

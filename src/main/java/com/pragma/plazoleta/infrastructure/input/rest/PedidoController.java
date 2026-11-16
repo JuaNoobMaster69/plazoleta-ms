@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,5 +61,13 @@ public class PedidoController {
         Pagina<PedidoResponseDto> respuesta = paginacion.map(mapper::toResponse);
 
         return ResponseEntity.ok(respuesta);
+    }
+
+    @Operation(summary = "Asignarse a un pedido (solo empleado)")
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/{id}/asignar")
+    public ResponseEntity<PedidoResponseDto> asignarPedido(@PathVariable Long id) {
+        var asignado = servicePort.asignarPedido(id);
+        return ResponseEntity.ok(mapper.toResponse(asignado));
     }
 }

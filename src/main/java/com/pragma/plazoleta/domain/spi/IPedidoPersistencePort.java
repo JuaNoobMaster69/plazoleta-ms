@@ -12,6 +12,7 @@ import com.pragma.plazoleta.domain.model.EstadoPedido;
 import com.pragma.plazoleta.domain.model.Pagina;
 import com.pragma.plazoleta.domain.model.Pedido;
 import java.util.List;
+import java.util.Optional;
 
 public interface IPedidoPersistencePort {
 
@@ -21,4 +22,6 @@ public interface IPedidoPersistencePort {
     boolean existePedidoActivoPorCliente(Long idCliente, List<EstadoPedido> estados);
 
     Pagina<Pedido> listarPorRestauranteYEstado(Long idRestaurante, EstadoPedido estado, int pagina, int tamano);
+
+    Optional<Pedido> buscarPorId(Long id);
 }
