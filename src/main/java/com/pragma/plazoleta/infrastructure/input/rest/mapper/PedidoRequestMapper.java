@@ -37,9 +37,11 @@ public class PedidoRequestMapper {
         return p;
     }
 
-    public PedidoResponseDto toResponse(Pedido p) {
+        public PedidoResponseDto toResponse(Pedido p) {
         List<DetallePedidoResponseDto> platos = p.getPlatos() != null
-                ? p.getPlatos().stream().map(d -> new DetallePedidoResponseDto(d.getIdPlato(), d.getCantidad())).collect(Collectors.toList())
+                ? p.getPlatos().stream()
+                    .map(d -> new DetallePedidoResponseDto(d.getIdPlato(), d.getCantidad()))
+                    .collect(Collectors.toList())
                 : null;
 
         return new PedidoResponseDto(
@@ -48,6 +50,7 @@ public class PedidoRequestMapper {
                 p.getIdRestaurante(),
                 p.getEstado() != null ? p.getEstado().name() : null,
                 p.getFechaCreacion(),
+                p.getIdEmpleado(), // <-- Nuevo campo
                 platos
         );
     }
