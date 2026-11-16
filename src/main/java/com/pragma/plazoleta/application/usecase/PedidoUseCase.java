@@ -154,4 +154,25 @@ public class PedidoUseCase implements IPedidoServicePort {
 
         return guardado;
     }
+
+    @Override
+    public Pedido entregarPedido(Long idPedido, String pin) {
+        // 1. Buscar el pedido
+        Pedido pedido = pedidoPersistencePort.buscarPorId(idPedido)
+                .orElseThrow(() -> new DomainException("No existe un pedido con ese id"));
+
+        // 2. Validar que esté en estado LISTO
+        if (pedido.getEstado() != EstadoPedido.LISTO) {
+            throw new DomainException("Solo se pueden entregar pedidos en estado LISTO");
+        }
+
+        // 3. Validar que el PIN coincida
+        if (pin == null || !pin.equals(pedido.getPinSeguridad())) {
+            throw new DomainException("El PIN de seguridad es incorrecto");
+        }
+
+        // 4. Cambiar el estado y guardar
+        pedido.setEstado(EstadoPedido.ENTREGADO);
+        return pedidoPersistencePort.guardar(pedido);
+    }
 }

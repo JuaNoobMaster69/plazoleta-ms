@@ -19,6 +19,8 @@ public interface IPedidoServicePort {
     Pagina<Pedido> listarPedidos(Long idRestaurante, EstadoPedido estado, int pagina, int tamano);
 
     Pedido asignarPedido(Long idPedido);
-    
+
     Pedido marcarPedidoListo(Long idPedido);
+
+    Pedido entregarPedido(Long idPedido, String pin);
 }
