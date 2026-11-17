@@ -182,6 +182,27 @@ public class PedidoUseCase implements IPedidoServicePort {
         pedido.setEstado(EstadoPedido.ENTREGADO);
         return pedidoPersistencePort.guardar(pedido);
     }
-    
-    
+
+    @Override
+    public Pedido cancelarPedido(Long idPedido) {
+        // 1. Buscar el pedido
+        Pedido pedido = pedidoPersistencePort.buscarPorId(idPedido)
+                .orElseThrow(() -> new DomainException("No existe un pedido con ese id"));
+
+        // 2. Validar que el cliente autenticado sea el dueño del pedido
+        Long idCliente = authenticatedUserPort.obtenerIdUsuario();
+        if (!pedido.getIdCliente().equals(idCliente)) {
+            throw new DomainException("No tiene permiso para cancelar este pedido");
+        }
+
+        // 3. Validar que el pedido esté en estado PENDIENTE
+        if (pedido.getEstado() != EstadoPedido.PENDIENTE) {
+            throw new DomainException("Lo sentimos, tu pedido ya está en preparación y no puede cancelarse");
+        }
+
+        // 4. Cambiar el estado a CANCELADO
+        pedido.setEstado(EstadoPedido.CANCELADO);
+        return pedidoPersistencePort.guardar(pedido);
+    }
+
 }
