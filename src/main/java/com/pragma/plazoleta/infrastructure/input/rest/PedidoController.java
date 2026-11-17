@@ -90,4 +90,12 @@ public class PedidoController {
         return ResponseEntity.ok(mapper.toResponse(entregado));
     }
 
+    @Operation(summary = "Cancelar un pedido (solo cliente)")
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<PedidoResponseDto> cancelarPedido(@PathVariable Long id) {
+        var cancelado = servicePort.cancelarPedido(id);
+        return ResponseEntity.ok(mapper.toResponse(cancelado));
+    }
+
 }

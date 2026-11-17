@@ -62,6 +62,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PATCH, "/pedidos/*/listo").hasRole("EMPLEADO")
                 // Entregar pedido: solo EMPLEADO
                 .requestMatchers(HttpMethod.PATCH, "/pedidos/*/entregar").hasRole("EMPLEADO")
+                // Cancelar pedido: solo CLIENTE
+                .requestMatchers(HttpMethod.PATCH, "/pedidos/*/cancelar").hasRole("CLIENTE")
                 .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic.disable())
