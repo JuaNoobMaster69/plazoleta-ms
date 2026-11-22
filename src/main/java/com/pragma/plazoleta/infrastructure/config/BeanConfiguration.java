@@ -15,6 +15,7 @@ import com.pragma.plazoleta.domain.spi.IMensajeriaClientPort;
 import com.pragma.plazoleta.domain.spi.IPedidoPersistencePort;
 import com.pragma.plazoleta.domain.spi.IPlatoPersistencePort;
 import com.pragma.plazoleta.domain.spi.IRestaurantePersistencePort;
+import com.pragma.plazoleta.domain.spi.ITrazabilidadClientPort;
 import com.pragma.plazoleta.domain.spi.IUsuarioClientPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +45,8 @@ public class BeanConfiguration {
             IRestaurantePersistencePort restaurantePersistencePort,
             IPlatoPersistencePort platoPersistencePort,
             IAuthenticatedUserPort authenticatedUserPort,
-            IMensajeriaClientPort mensajeriaClientPort) {
-        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort, platoPersistencePort, authenticatedUserPort, mensajeriaClientPort);
+            IMensajeriaClientPort mensajeriaClientPort,
+            ITrazabilidadClientPort trazabilidadClientPort) {
+        return new PedidoUseCase(pedidoPersistencePort, restaurantePersistencePort, platoPersistencePort, authenticatedUserPort, mensajeriaClientPort, trazabilidadClientPort);
     }
 }
